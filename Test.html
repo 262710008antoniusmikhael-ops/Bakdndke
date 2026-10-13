@@ -1,0 +1,707 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deteksi Warna Kamera</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .crosshair-line {
+            background-color: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 0 4px rgba(0,0,0,0.6);
+        }
+        .crosshair-center {
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 0 8px rgba(0,0,0,0.7), inset 0 0 4px rgba(0,0,0,0.5);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        .ripple {
+            animation: ripple-effect 0.4s linear;
+        }
+        @keyframes ripple-effect {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden select-none">
+
+    <!-- Navigation Header -->
+    <header class="bg-slate-800/90 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50 px-4 py-3 shadow-lg">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-md">
+                    <i class="fa-solid font-bold fa-eye text-white text-base"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base tracking-tight text-white leading-none">Detektor Warna</h1>
+                    <p class="text-[10px] text-slate-400 font-medium">Kamera & Piksel Interaktif</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button id="toggleCameraBtn" title="Tukar Kamera" class="w-10 h-10 rounded-xl bg-slate-700/80 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition active:scale-95 border border-slate-600/50">
+                    <i class="fa-solid fa-camera-rotate text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-md w-full mx-auto p-4 flex-1 flex flex-col gap-4">
+
+        <!-- Camera / Image Display Viewport -->
+        <div class="relative w-full aspect-[4/3] bg-slate-950 rounded-2xl overflow-hidden shadow-2xl border border-slate-800 group">
+            
+            <!-- Live Video View -->
+            <video id="videoFeed" autoplay playsinline muted class="w-full h-full object-cover"></video>
+
+            <!-- Frozen Canvas View (Hidden by default) -->
+            <canvas id="photoCanvas" class="hidden w-full h-full object-cover cursor-crosshair"></canvas>
+
+            <!-- Hidden canvas for processing live video frames -->
+            <canvas id="processCanvas" class="hidden"></canvas>
+
+            <!-- Crosshair overlay (Live Video Mode) -->
+            <div id="crosshairContainer" class="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <div class="crosshair-line absolute w-6 h-[2px]"></div>
+                <div class="crosshair-line absolute h-6 w-[2px]"></div>
+                <div id="crosshairCenterCircle" class="crosshair-center w-8 h-8 rounded-full border-2 transition-colors duration-150"></div>
+            </div>
+
+            <!-- Interactive Inspector Target Circle (Freeze Mode) -->
+            <div id="inspectorPoint" class="absolute hidden w-7 h-7 -ml-3.5 -mt-3.5 rounded-full border-2 border-white shadow-2xl pointer-events-none z-20 transition-transform duration-75 scale-125">
+                <div class="w-full h-full rounded-full border border-black/40"></div>
+            </div>
+
+            <!-- Mode Indicator Badge -->
+            <div class="absolute top-3 left-3 z-10">
+                <span id="modeBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 backdrop-blur-md border border-emerald-500/30 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Kamera Langsung
+                </span>
+            </div>
+
+            <!-- Live Color Quick Badge (Top Right) -->
+            <div class="absolute top-3 right-3 z-10">
+                <div class="flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-700/80 shadow-md">
+                    <div id="liveColorBadge" class="w-4 h-4 rounded-full border border-white/50 bg-slate-700"></div>
+                    <span id="liveHexBadge" class="text-xs font-mono font-medium text-slate-200">#------</span>
+                </div>
+            </div>
+
+            <!-- Camera Permission / Loading Overlay -->
+            <div id="cameraStatusOverlay" class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-30">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center mb-3">
+                    <i id="statusIcon" class="fa-solid fa-camera text-2xl animate-bounce"></i>
+                </div>
+                <h3 id="statusTitle" class="font-bold text-slate-200 text-base mb-1">Menyiapkan Kamera...</h3>
+                <p id="statusDesc" class="text-xs text-slate-400 max-w-xs mb-4">Mohon izinkan akses kamera pada perangkat Anda untuk mulai menginspeksi warna.</p>
+                <button id="retryCameraBtn" class="hidden px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl text-xs transition shadow-lg">
+                    Coba Lagi
+                </button>
+            </div>
+        </div>
+
+        <!-- Action Controls Bar -->
+        <div class="flex items-center justify-center gap-4 py-1">
+            <button id="retakeBtn" class="hidden flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95 border border-slate-700 shadow-md">
+                <i class="fa-solid fa-arrows-rotate text-sm"></i>
+                Foto Ulang
+            </button>
+            
+            <button id="captureBtn" class="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 p-1 shadow-lg shadow-indigo-500/25 active:scale-90 transition transform flex items-center justify-center">
+                <div class="w-full h-full rounded-full border-2 border-white/80 flex items-center justify-center bg-transparent">
+                    <div class="w-10 h-10 rounded-full bg-white shadow-inner"></div>
+                </div>
+            </button>
+
+            <button id="saveColorBtn" class="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95 border border-indigo-500 shadow-md shadow-indigo-600/20">
+                <i class="fa-solid fa-bookmark text-sm"></i>
+                Simpan Warna
+            </button>
+        </div>
+
+        <!-- Selected Color Information Card -->
+        <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-4 border border-slate-700/70 shadow-xl space-y-4">
+            
+            <!-- Color Overview Header -->
+            <div class="flex items-center gap-3">
+                <div id="colorPreviewBox" class="w-16 h-16 rounded-2xl border-2 border-white/20 shadow-inner flex-shrink-0 transition-colors duration-200 bg-slate-700"></div>
+                <div class="flex-1 min-w-0">
+                    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Hasil Deteksi</span>
+                    <h2 id="colorNameText" class="text-lg font-extrabold text-white truncate leading-tight">Memuat Warna...</h2>
+                    <p id="colorHexText" class="text-sm font-mono text-indigo-400 font-bold tracking-wide mt-0.5">#------</p>
+                </div>
+                <button id="copyHexBtn" title="Salin Kode HEX" class="p-2.5 rounded-xl bg-slate-700/60 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-600/50">
+                    <i class="fa-regular fa-copy text-base"></i>
+                </button>
+            </div>
+
+            <!-- Detailed Color Code Grid -->
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/40">
+                    <span class="text-[10px] text-slate-400 block font-semibold mb-0.5">Format RGB</span>
+                    <span id="rgbValueText" class="font-mono text-slate-200 font-medium">rgb(0, 0, 0)</span>
+                </div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/40">
+                    <span class="text-[10px] text-slate-400 block font-semibold mb-0.5">Format HSL</span>
+                    <span id="hslValueText" class="font-mono text-slate-200 font-medium">hsl(0, 0%, 0%)</span>
+                </div>
+            </div>
+
+            <!-- Color Harmonies Section -->
+            <div class="pt-2 border-t border-slate-700/50">
+                <h4 class="text-xs font-bold text-slate-300 mb-2.5 flex items-center gap-1.5">
+                    <i class="fa-solid fa-palette text-indigo-400"></i>
+                    Harmoni Warna
+                </h4>
+                <div class="grid grid-cols-3 gap-2">
+                    <!-- Complementary -->
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700/30 text-center">
+                        <span class="text-[9px] text-slate-400 font-medium block mb-1">Komplementer</span>
+                        <div id="compColorBox" class="w-full h-7 rounded-lg mb-1 border border-white/10 bg-slate-700"></div>
+                        <span id="compHexText" class="text-[10px] font-mono text-slate-300 font-bold">#------</span>
+                    </div>
+                    <!-- Analogous 1 -->
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700/30 text-center">
+                        <span class="text-[9px] text-slate-400 font-medium block mb-1">Analog 1</span>
+                        <div id="ana1ColorBox" class="w-full h-7 rounded-lg mb-1 border border-white/10 bg-slate-700"></div>
+                        <span id="ana1HexText" class="text-[10px] font-mono text-slate-300 font-bold">#------</span>
+                    </div>
+                    <!-- Analogous 2 -->
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700/30 text-center">
+                        <span class="text-[9px] text-slate-400 font-medium block mb-1">Analog 2</span>
+                        <div id="ana2ColorBox" class="w-full h-7 rounded-lg mb-1 border border-white/10 bg-slate-700"></div>
+                        <span id="ana2HexText" class="text-[10px] font-mono text-slate-300 font-bold">#------</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color History Drawer / List -->
+        <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-4 border border-slate-700/70 shadow-xl space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-clock-rotate-left text-slate-400"></i>
+                    Riwayat Warna Tersimpan
+                </h3>
+                <button id="clearHistoryBtn" class="text-[10px] text-rose-400 hover:text-rose-300 font-semibold transition">
+                    Hapus Semua
+                </button>
+            </div>
+
+            <!-- Scrollable Saved Colors -->
+            <div id="historyList" class="flex gap-2.5 overflow-x-auto pb-1 pt-1 custom-scrollbar min-h-[52px] items-center">
+                <span id="emptyHistoryMsg" class="text-xs text-slate-500 italic py-2">Belum ada warna disimpan.</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Notification Toast Container -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-800 text-slate-100 text-xs px-4 py-2.5 rounded-xl border border-slate-700 shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-4 flex items-center gap-2 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMessage">Pesan Notifikasi</span>
+    </div>
+
+    <script>
+        /* COLOR NAME DICTIONARY (Indonesian & Standard Terms) */
+        const COLOR_NAMES_DICT = [
+            { name: "Hitam Pekat", rgb: [0, 0, 0] },
+            { name: "Hitam", rgb: [20, 20, 20] },
+            { name: "Abu-abu Gelap", rgb: [60, 60, 60] },
+            { name: "Abu-abu", rgb: [128, 128, 128] },
+            { name: "Abu-abu Terang", rgb: [200, 200, 200] },
+            { name: "Putih bersih", rgb: [255, 255, 255] },
+            { name: "Merah", rgb: [255, 0, 0] },
+            { name: "Merah Hati (Maroon)", rgb: [128, 0, 0] },
+            { name: "Merah Muda (Pink)", rgb: [255, 192, 203] },
+            { name: "Pink Cerah", rgb: [255, 20, 147] },
+            { name: "Oranye", rgb: [255, 165, 0] },
+            { name: "Oranye Tua", rgb: [255, 140, 0] },
+            { name: "Kuning", rgb: [255, 255, 0] },
+            { name: "Kuning Emas", rgb: [255, 215, 0] },
+            { name: "Kuning Lemon", rgb: [253, 253, 150] },
+            { name: "Hijau", rgb: [0, 128, 0] },
+            { name: "Hijau Cerah (Lime)", rgb: [0, 255, 0] },
+            { name: "Hijau Muda", rgb: [144, 238, 144] },
+            { name: "Hijau Mint", rgb: [152, 255, 152] },
+            { name: "Hijau Zaitun (Olive)", rgb: [128, 128, 0] },
+            { name: "Hijau Toska", rgb: [64, 224, 208] },
+            { name: "Biru Laut (Cyan)", rgb: [0, 255, 255] },
+            { name: "Biru Muda (Sky)", rgb: [135, 206, 235] },
+            { name: "Biru", rgb: [0, 0, 255] },
+            { name: "Biru Tua (Navy)", rgb: [0, 0, 128] },
+            { name: "Biru Dongker", rgb: [25, 25, 112] },
+            { name: "Ungu", rgb: [128, 0, 128] },
+            { name: "Ungu Lavender", rgb: [230, 230, 250] },
+            { name: "Ungu Violet", rgb: [238, 130, 238] },
+            { name: "Cokelat", rgb: [139, 69, 19] },
+            { name: "Cokelat Tua", rgb: [101, 67, 33] },
+            { name: "Cokelat Krem (Beige)", rgb: [245, 245, 220] },
+            { name: "Koral", rgb: [255, 127, 80] },
+            { name: "Nila (Indigo)", rgb: [75, 0, 130] }
+        ];
+
+        /* APPLICATION STATE */
+        let stream = null;
+        let isCameraActive = false;
+        let isFrozen = false;
+        let currentFacingMode = 'environment'; // 'environment' (rear) or 'user' (front)
+        let currentColor = { r: 0, g: 0, b: 0, hex: "#000000", name: "Hitam" };
+        let historyColors = [];
+
+        /* DOM ELEMENTS */
+        const videoFeed = document.getElementById('videoFeed');
+        const photoCanvas = document.getElementById('photoCanvas');
+        const processCanvas = document.getElementById('processCanvas');
+        const crosshairContainer = document.getElementById('crosshairContainer');
+        const inspectorPoint = document.getElementById('inspectorPoint');
+        const modeBadge = document.getElementById('modeBadge');
+        const cameraStatusOverlay = document.getElementById('cameraStatusOverlay');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusDesc = document.getElementById('statusDesc');
+        const retryCameraBtn = document.getElementById('retryCameraBtn');
+        const toggleCameraBtn = document.getElementById('toggleCameraBtn');
+        const captureBtn = document.getElementById('captureBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const saveColorBtn = document.getElementById('saveColorBtn');
+        const copyHexBtn = document.getElementById('copyHexBtn');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const historyList = document.getElementById('historyList');
+        const emptyHistoryMsg = document.getElementById('emptyHistoryMsg');
+
+        // Color detail displays
+        const colorPreviewBox = document.getElementById('colorPreviewBox');
+        const colorNameText = document.getElementById('colorNameText');
+        const colorHexText = document.getElementById('colorHexText');
+        const rgbValueText = document.getElementById('rgbValueText');
+        const hslValueText = document.getElementById('hslValueText');
+        const liveColorBadge = document.getElementById('liveColorBadge');
+        const liveHexBadge = document.getElementById('liveHexBadge');
+        const crosshairCenterCircle = document.getElementById('crosshairCenterCircle');
+
+        // Harmony displays
+        const compColorBox = document.getElementById('compColorBox');
+        const compHexText = document.getElementById('compHexText');
+        const ana1ColorBox = document.getElementById('ana1ColorBox');
+        const ana1HexText = document.getElementById('ana1HexText');
+        const ana2ColorBox = document.getElementById('ana2ColorBox');
+        const ana2HexText = document.getElementById('ana2HexText');
+
+        async function startCamera() {
+            showOverlay(true, "Menghubungkan Kamera...", "Mohon beri izin akses kamera...", true);
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            const constraints = {
+                video: {
+                    facingMode: currentFacingMode,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            };
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                videoFeed.srcObject = stream;
+                await videoFeed.play();
+                
+                isCameraActive = true;
+                showOverlay(false);
+                requestAnimationFrame(processLiveFrame);
+            } catch (err) {
+                console.error("Camera Error: ", err);
+                isCameraActive = false;
+                showOverlay(true, "Kamera Tidak Ditemukan", "Gagal mengakses kamera. Pastikan izin kamera sudah diberikan.", false, true);
+            }
+        }
+
+        function showOverlay(show, title = "", desc = "", isBounce = false, showRetry = false) {
+            if (show) {
+                cameraStatusOverlay.classList.remove('hidden');
+                statusTitle.innerText = title;
+                statusDesc.innerText = desc;
+                if (isBounce) statusIcon.classList.add('animate-bounce');
+                else statusIcon.classList.remove('animate-bounce');
+
+                if (showRetry) retryCameraBtn.classList.remove('hidden');
+                else retryCameraBtn.classList.add('hidden');
+            } else {
+                cameraStatusOverlay.classList.add('hidden');
+            }
+        }
+
+        function processLiveFrame() {
+            if (!isCameraActive || isFrozen) return;
+
+            if (videoFeed.readyState === videoFeed.HAVE_ENOUGH_DATA) {
+                processCanvas.width = videoFeed.videoWidth;
+                processCanvas.height = videoFeed.videoHeight;
+
+                const ctx = processCanvas.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(videoFeed, 0, 0, processCanvas.width, processCanvas.height);
+
+                // Sample center area (5x5 average for stability)
+                const centerX = Math.floor(processCanvas.width / 2);
+                const centerY = Math.floor(processCanvas.height / 2);
+
+                const sampleColor = getAverageColor(ctx, centerX, centerY, 5);
+                updateColorDisplay(sampleColor.r, sampleColor.g, sampleColor.b);
+            }
+
+            requestAnimationFrame(processLiveFrame);
+        }
+
+        function getAverageColor(ctx, startX, startY, size = 5) {
+            const half = Math.floor(size / 2);
+            const x = Math.max(0, startX - half);
+            const y = Math.max(0, startY - half);
+            const imgData = ctx.getImageData(x, y, size, size).data;
+
+            let r = 0, g = 0, b = 0, count = 0;
+            for (let i = 0; i < imgData.length; i += 4) {
+                r += imgData[i];
+                g += imgData[i + 1];
+                b += imgData[i + 2];
+                count++;
+            }
+
+            return {
+                r: Math.round(r / count),
+                g: Math.round(g / count),
+                b: Math.round(b / count)
+            };
+        }
+
+        function capturePhoto() {
+            if (!isCameraActive || isFrozen) return;
+
+            isFrozen = true;
+            
+            // Draw video to photo canvas
+            photoCanvas.width = videoFeed.videoWidth;
+            photoCanvas.height = videoFeed.videoHeight;
+            const ctx = photoCanvas.getContext('2d');
+            
+            // Handle selfie mirror flip if using front camera
+            if (currentFacingMode === 'user') {
+                ctx.translate(photoCanvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+            
+            ctx.drawImage(videoFeed, 0, 0, photoCanvas.width, photoCanvas.height);
+
+            // Switch UI views
+            videoFeed.classList.add('hidden');
+            photoCanvas.classList.remove('hidden');
+            crosshairContainer.classList.add('hidden');
+            retakeBtn.classList.remove('hidden');
+
+            modeBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 backdrop-blur-md border border-amber-500/30 shadow-sm";
+            modeBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> Foto Ditangkap (Sentuh Objek)`;
+
+            // Get initial center color from captured photo
+            const centerX = Math.floor(photoCanvas.width / 2);
+            const centerY = Math.floor(photoCanvas.height / 2);
+            
+            // Position inspector point in center visually
+            const rect = photoCanvas.getBoundingClientRect();
+            positionInspector(rect.width / 2, rect.height / 2);
+
+            sampleCanvasPoint(centerX, centerY);
+            showToast("Foto berhasil ditangkap! Sentuh gambar untuk cek warna.", "fa-camera");
+        }
+
+        function resetToLiveView() {
+            isFrozen = false;
+            photoCanvas.classList.add('hidden');
+            videoFeed.classList.remove('hidden');
+            crosshairContainer.classList.remove('hidden');
+            inspectorPoint.classList.add('hidden');
+            retakeBtn.classList.add('hidden');
+
+            modeBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 backdrop-blur-md border border-emerald-500/30 shadow-sm";
+            modeBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Kamera Langsung`;
+
+            requestAnimationFrame(processLiveFrame);
+        }
+
+        function handleCanvasInteract(e) {
+            if (!isFrozen) return;
+
+            const rect = photoCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const xOnCanvas = clientX - rect.left;
+            const yOnCanvas = clientY - rect.top;
+
+            if (xOnCanvas < 0 || xOnCanvas > rect.width || yOnCanvas < 0 || yOnCanvas > rect.height) return;
+
+            // Map UI coordinates to original Canvas pixel coordinates
+            const scaleX = photoCanvas.width / rect.width;
+            const scaleY = photoCanvas.height / rect.height;
+
+            const pixelX = Math.floor(xOnCanvas * scaleX);
+            const pixelY = Math.floor(yOnCanvas * scaleY);
+
+            positionInspector(xOnCanvas, yOnCanvas);
+            sampleCanvasPoint(pixelX, pixelY);
+        }
+
+        function positionInspector(x, y) {
+            inspectorPoint.style.left = `${x}px`;
+            inspectorPoint.style.top = `${y}px`;
+            inspectorPoint.classList.remove('hidden');
+        }
+
+        function sampleCanvasPoint(pixelX, pixelY) {
+            const ctx = photoCanvas.getContext('2d', { willReadFrequently: true });
+            const sample = getAverageColor(ctx, pixelX, pixelY, 3);
+            updateColorDisplay(sample.r, sample.g, sample.b);
+        }
+
+        function updateColorDisplay(r, g, b) {
+            const hex = rgbToHex(r, g, b);
+            const name = getApproximateColorName(r, g, b);
+            const hsl = rgbToHsl(r, g, b);
+
+            currentColor = { r, g, b, hex, name, hsl };
+
+            // Update Header & Main Preview
+            colorPreviewBox.style.backgroundColor = hex;
+            colorNameText.innerText = name;
+            colorHexText.innerText = hex.toUpperCase();
+            rgbValueText.innerText = `rgb(${r}, ${g}, ${b})`;
+            hslValueText.innerText = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+
+            liveColorBadge.style.backgroundColor = hex;
+            liveHexBadge.innerText = hex.toUpperCase();
+            crosshairCenterCircle.style.borderColor = (hsl.l > 60) ? '#000000' : '#ffffff';
+
+            // Calculate & Render Harmonies
+            renderHarmonies(hsl);
+        }
+
+        function renderHarmonies(hsl) {
+            // Complementary (180deg flip)
+            const compH = (hsl.h + 180) % 360;
+            const compRgb = hslToRgb(compH, hsl.s, hsl.l);
+            const compHex = rgbToHex(compRgb.r, compRgb.g, compRgb.b);
+            compColorBox.style.backgroundColor = compHex;
+            compHexText.innerText = compHex.toUpperCase();
+
+            // Analogous 1 (+30deg)
+            const ana1H = (hsl.h + 30) % 360;
+            const ana1Rgb = hslToRgb(ana1H, hsl.s, hsl.l);
+            const ana1Hex = rgbToHex(ana1Rgb.r, ana1Rgb.g, ana1Rgb.b);
+            ana1ColorBox.style.backgroundColor = ana1Hex;
+            ana1HexText.innerText = ana1Hex.toUpperCase();
+
+            // Analogous 2 (-30deg)
+            const ana2H = (hsl.h - 30 + 360) % 360;
+            const ana2Rgb = hslToRgb(ana2H, hsl.s, hsl.l);
+            const ana2Hex = rgbToHex(ana2Rgb.r, ana2Rgb.g, ana2Rgb.b);
+            ana2ColorBox.style.backgroundColor = ana2Hex;
+            ana2HexText.innerText = ana2Hex.toUpperCase();
+        }
+
+        function getApproximateColorName(r, g, b) {
+            let minDistance = Infinity;
+            let closestName = "Warna Tidak Diketahui";
+
+            for (const color of COLOR_NAMES_DICT) {
+                // Euclidean Distance in RGB space
+                const dist = Math.sqrt(
+                    Math.pow(r - color.rgb[0], 2) +
+                    Math.pow(g - color.rgb[1], 2) +
+                    Math.pow(b - color.rgb[2], 2)
+                );
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    closestName = color.name;
+                }
+            }
+            return closestName;
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function hslToRgb(h, s, l) {
+            s /= 100;
+            l /= 100;
+            const k = n => (n + h / 30) % 12;
+            const a = s * Math.min(l, 1 - l);
+            const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+            return {
+                r: Math.round(255 * f(0)),
+                g: Math.round(255 * f(8)),
+                b: Math.round(255 * f(4))
+            };
+        }
+
+        function saveCurrentColor() {
+            if (!currentColor.hex) return;
+
+            // Avoid duplicate contiguous saves
+            if (historyColors.length > 0 && historyColors[0].hex === currentColor.hex) {
+                showToast("Warna ini sudah tersimpan!", "fa-circle-info");
+                return;
+            }
+
+            historyColors.unshift({ ...currentColor });
+            if (historyColors.length > 20) historyColors.pop(); // Keep max 20
+
+            renderHistory();
+            showToast(`Warna ${currentColor.name} berhasil disimpan!`, "fa-bookmark");
+        }
+
+        function renderHistory() {
+            if (historyColors.length === 0) {
+                emptyHistoryMsg.classList.remove('hidden');
+                historyList.innerHTML = '';
+                historyList.appendChild(emptyHistoryMsg);
+                return;
+            }
+
+            emptyHistoryMsg.classList.add('hidden');
+            historyList.innerHTML = '';
+
+            historyColors.forEach((item, index) => {
+                const badge = document.createElement('div');
+                badge.className = "flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/60 shadow-sm flex-shrink-0 cursor-pointer hover:border-slate-500 transition active:scale-95 group";
+                badge.innerHTML = `
+                    <div class="w-4 h-4 rounded-lg border border-white/20" style="background-color: ${item.hex}"></div>
+                    <span class="text-xs font-mono font-semibold text-slate-200">${item.hex.toUpperCase()}</span>
+                `;
+                badge.addEventListener('click', () => {
+                    updateColorDisplay(item.r, item.g, item.b);
+                    showToast(`Memuat warna ${item.hex.toUpperCase()}`, "fa-palette");
+                });
+                historyList.appendChild(badge);
+            });
+        }
+
+        function copyHexToClipboard(hexText) {
+            const textToCopy = hexText || currentColor.hex.toUpperCase();
+            
+            // Fallback for iFrame clipboard standard
+            const tempInput = document.createElement("input");
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast(`Kode ${textToCopy} tersalin ke clipboard!`, "fa-copy");
+        }
+
+        function showToast(msg, icon = "fa-circle-check") {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.innerText = msg;
+            toastIcon.className = `fa-solid ${icon} text-emerald-400`;
+
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+            }, 2500);
+        }
+
+        window.addEventListener('load', () => {
+            startCamera();
+
+            // Camera toggle
+            toggleCameraBtn.addEventListener('click', () => {
+                currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
+                resetToLiveView();
+                startCamera();
+            });
+
+            retryCameraBtn.addEventListener('click', startCamera);
+
+            // Capture & Reset
+            captureBtn.addEventListener('click', capturePhoto);
+            retakeBtn.addEventListener('click', resetToLiveView);
+
+            // Interactive photo picker
+            photoCanvas.addEventListener('click', handleCanvasInteract);
+            photoCanvas.addEventListener('touchstart', (e) => {
+                handleCanvasInteract(e);
+            }, { passive: true });
+
+            photoCanvas.addEventListener('touchmove', (e) => {
+                handleCanvasInteract(e);
+            }, { passive: true });
+
+            // Actions
+            saveColorBtn.addEventListener('click', saveCurrentColor);
+            copyHexBtn.addEventListener('click', () => copyHexToClipboard());
+
+            clearHistoryBtn.addEventListener('click', () => {
+                historyColors = [];
+                renderHistory();
+                showToast("Riwayat warna telah dibersihkan.", "fa-trash");
+            });
+        });
+    </script>
+</body>
+</html>
+```
