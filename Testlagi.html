@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kamera Super Zoom 100x</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #163d5b;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    header h1 {
+      font-size: 1.3rem;
+      color: #ffffff;
+    }
+
+    .viewer-box {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3/4;
+      background-color: #0d2538;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video, canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .zoom-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .controls-card {
+      background-color: #1a496c;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .zoom-slider-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .zoom-slider-container input[type=range] {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      accent-color: #2596be;
+      cursor: pointer;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background-color: #2596be;
+      color: white;
+      font-weight: bold;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button:active {
+      transform: scale(0.98);
+      background-color: #1f7a9c;
+    }
+
+    button.accent {
+      background-color: #3344ff;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Kamera Super Zoom (1-100x)</h1>
+    </header>
+
+    <div class="viewer-box">
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas" class="hidden"></canvas>
+      <div id="zoom-badge" class="zoom-badge">1.0x</div>
+    </div>
+
+    <div class="controls-card">
+      <div class="zoom-slider-container">
+        <span>1x</span>
+        <input type="range" id="zoom-range" min="1" max="100" value="1" step="0.5">
+        <span>100x</span>
+      </div>
+
+      <div class="btn-group">
+        <button id="btn-capture" class="accent">Ambil Foto</button>
+        <button id="btn-reset" class="hidden">Buka Kamera</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const zoomRange = document.getElementById('zoom-range');
+    const zoomBadge = document.getElementById('zoom-badge');
+    const btnCapture = document.getElementById('btn-capture');
+    const btnReset = document.getElementById('btn-reset');
+    const ctx = canvas.getContext('2d');
+
+    let videoTrack = null;
+    let isLive = true;
+    let currentZoom = 1;
+
+    async function initCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+        });
+        video.srcObject = stream;
+        videoTrack = stream.getVideoTracks()[0];
+      } catch (err) {
+        alert('Gagal mengaktifkan kamera: ' + err.message);
+      }
+    }
+
+    zoomRange.addEventListener('input', (e) => {
+      currentZoom = parseFloat(e.target.value);
+      zoomBadge.textContent = currentZoom.toFixed(1) + 'x';
+
+      if (isLive) {
+        // Terapkan Zoom Hardware jika didukung HP
+        const capabilities = videoTrack?.getCapabilities();
+        if (capabilities && capabilities.zoom) {
+          const min = capabilities.zoom.min || 1;
+          const max = capabilities.zoom.max || 1;
+          const scaledZoom = min + (currentZoom / 100) * (max - min);
+          videoTrack.applyConstraints({ advanced: [{ zoom: scaledZoom }] }).catch(() => {});
+        }
+        
+        // Perbesaran Digital Canvas
+        video.style.transform = `scale(${currentZoom})`;
+      } else {
+        renderDigitalZoom();
+      }
+    });
+
+    btnCapture.addEventListener('click', () => {
+      if (isLive) {
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+        
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        video.classList.add('hidden');
+        canvas.classList.remove('hidden');
+        btnCapture.classList.add('hidden');
+        btnReset.classList.remove('hidden');
+        isLive = false;
+
+        renderDigitalZoom();
+      }
+    });
+
+    btnReset.addEventListener('click', () => {
+      video.classList.remove('hidden');
+      canvas.classList.add('hidden');
+      btnCapture.classList.remove('hidden');
+      btnReset.classList.add('hidden');
+      video.style.transform = `scale(${currentZoom})`;
+      isLive = true;
+    });
+
+    function renderDigitalZoom() {
+      if (isLive) return;
+      canvas.style.transform = `scale(${currentZoom})`;
+    }
+
+    initCamera();
+  </script>
+</body>
+</html>
