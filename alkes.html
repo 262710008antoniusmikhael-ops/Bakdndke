@@ -1,0 +1,1273 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alkes & Perbekalan Kesehatan - Interaktif</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        medical: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        brand: {
+                            blue: '#0284c7',
+                            dark: '#0f172a',
+                            light: '#f8fafc'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Flip Card Effect */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="bg-gradient-to-r from-teal-800 via-teal-700 to-cyan-800 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white/10 rounded-lg backdrop-blur-md">
+                        <i class="fa-solid font-bold fa-notes-medical text-2xl text-teal-300"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold tracking-wide">MEDICAL DEVICE & ALKES</h1>
+                        <p class="text-xs text-teal-200">Berdasarkan Materi: apt. Vania S. Yuhar, S.Si.</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex space-x-1">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition-all bg-white/20 text-white">
+                        <i class="fa-solid fa-house mr-1.5"></i> Dashboard & Teori
+                    </button>
+                    <button onclick="switchTab('catalog')" id="nav-catalog" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition-all text-teal-100 hover:bg-white/10 hover:text-white">
+                        <i class="fa-solid fa-boxes-stacked mr-1.5"></i> Katalog Alkes
+                    </button>
+                    <button onclick="switchTab('verifier')" id="nav-verifier" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition-all text-teal-100 hover:bg-white/10 hover:text-white">
+                        <i class="fa-solid fa-barcode mr-1.5"></i> Cek Izin Edar
+                    </button>
+                    <button onclick="switchTab('flashcards')" id="nav-flashcards" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition-all text-teal-100 hover:bg-white/10 hover:text-white">
+                        <i class="fa-solid fa-clone mr-1.5"></i> Flashcards
+                    </button>
+                    <button onclick="switchTab('quiz')" id="nav-quiz" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition-all text-teal-100 hover:bg-white/10 hover:text-white">
+                        <i class="fa-solid fa-graduation-cap mr-1.5"></i> Kuis Evaluasi
+                    </button>
+                </nav>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 rounded-md text-teal-100 hover:text-white hover:bg-teal-600 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-teal-900 px-4 pt-2 pb-4 space-y-1 border-t border-teal-700">
+            <button onclick="switchTab('dashboard')" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:bg-teal-800">
+                <i class="fa-solid fa-house w-6"></i> Dashboard & Teori
+            </button>
+            <button onclick="switchTab('catalog')" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-teal-100 hover:bg-teal-800">
+                <i class="fa-solid fa-boxes-stacked w-6"></i> Katalog Alkes
+            </button>
+            <button onclick="switchTab('verifier')" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-teal-100 hover:bg-teal-800">
+                <i class="fa-solid fa-barcode w-6"></i> Cek Izin Edar & Notifikasi
+            </button>
+            <button onclick="switchTab('flashcards')" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-teal-100 hover:bg-teal-800">
+                <i class="fa-solid fa-clone w-6"></i> Flashcards Belajar
+            </button>
+            <button onclick="switchTab('quiz')" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-teal-100 hover:bg-teal-800">
+                <i class="fa-solid fa-graduation-cap w-6"></i> Kuis Evaluasi
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ================= SECTION 1: DASHBOARD & THEORETICAL FOUNDATION ================= -->
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <div class="relative z-10 max-w-3xl">
+                    <span class="bg-white/20 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">Materi Perkuliahan Farmasi</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold mb-2">Pengenalan Alat Kesehatan & Perbekalan Kesehatan</h2>
+                    <p class="text-teal-100 text-sm sm:text-base leading-relaxed">
+                        Pelajari klasifikasi perbekalan kesehatan, regulasi izin edar (AKD/AKL), kode notifikasi kosmetika, hingga 16 kategori penggolongan alat kesehatan berdasarkan fungsi dan kegunaannya secara interaktif.
+                    </p>
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <button onclick="switchTab('catalog')" class="bg-white text-teal-800 font-semibold px-4 py-2.5 rounded-xl shadow hover:bg-teal-50 transition flex items-center text-sm">
+                            <i class="fa-solid fa-magnifying-glass mr-2"></i> Jelajahi Katalog Alkes
+                        </button>
+                        <button onclick="switchTab('verifier')" class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-4 py-2.5 rounded-xl transition flex items-center text-sm border border-teal-500">
+                            <i class="fa-solid fa-shield-halved mr-2"></i> Simulator Izin Edar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conceptual Tree Diagram (Perbekalan Kesehatan vs Farmasi) -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="flex items-center space-x-3 mb-6 border-b pb-4 border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Klasifikasi Perbekalan Kesehatan (UU RI No. 36/2009)</h3>
+                        <p class="text-slate-500 text-xs">Pembedaan Hirarki Antara Sediaan Farmasi, ALKES, dan PKRT</p>
+                    </div>
+                </div>
+
+                <!-- Interactive Hierarchy Map -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <!-- Root Parent -->
+                    <div class="md:col-span-3 bg-amber-500 text-white font-bold p-4 rounded-xl shadow-sm text-lg flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-boxes-packing"></i>
+                        <span>PERBEKALAN KESEHATAN</span>
+                    </div>
+
+                    <!-- Branch 1: Sediaan Farmasi -->
+                    <div class="bg-teal-50 border border-teal-200 p-4 rounded-xl text-left hover:shadow-md transition">
+                        <div class="font-bold text-teal-900 border-b border-teal-200 pb-2 mb-2 flex items-center justify-between">
+                            <span>1. SEDIAAN FARMASI</span>
+                            <i class="fa-solid fa-pills text-teal-600"></i>
+                        </div>
+                        <ul class="text-sm space-y-1 text-teal-800">
+                            <li class="flex items-center"><i class="fa-solid fa-check text-teal-500 text-xs mr-2"></i> Obat & Bahan Obat</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-teal-500 text-xs mr-2"></i> Obat Tradisional</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-teal-500 text-xs mr-2"></i> Kosmetika</li>
+                        </ul>
+                    </div>
+
+                    <!-- Branch 2: ALKES -->
+                    <div class="bg-cyan-50 border border-cyan-200 p-4 rounded-xl text-left hover:shadow-md transition">
+                        <div class="font-bold text-cyan-900 border-b border-cyan-200 pb-2 mb-2 flex items-center justify-between">
+                            <span>2. ALAT KESEHATAN (ALKES)</span>
+                            <i class="fa-solid fa-stethoscope text-cyan-600"></i>
+                        </div>
+                        <p class="text-xs text-cyan-800 leading-relaxed">
+                            Instrumen, apparatus, mesin, implan, reagen in vitro yang <strong>TIDAK mengandung obat</strong> sebagai aksi utama.
+                        </p>
+                    </div>
+
+                    <!-- Branch 3: PKRT -->
+                    <div class="bg-sky-50 border border-sky-200 p-4 rounded-xl text-left hover:shadow-md transition">
+                        <div class="font-bold text-sky-900 border-b border-sky-200 pb-2 mb-2 flex items-center justify-between">
+                            <span>3. PKRT</span>
+                            <i class="fa-solid fa-pump-soap text-sky-600"></i>
+                        </div>
+                        <p class="text-xs text-sky-800 leading-relaxed">
+                            Perbekalan Kesehatan Rumah Tangga (Pembersih, disinfektan rumah tangga, pembasmi serangga, dll).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Definition & Core Distinction Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- WHO & Kemenkes Definition -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-book-medical"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-base">Definisi Alat Kesehatan (WHO & Kemenkes RI 2016)</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                        Alat Kesehatan adalah instrumen, apparatus, mesin, perkakas, implan, reagen in vitro, kalibrator, perangkat lunak, atau material yang digunakan tunggal/kombinasi untuk manusia tanpa mencapai aksi utamanya secara farmakologi, imunologi, atau metabolisme.
+                    </p>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1.5">
+                        <div class="font-semibold text-slate-900 mb-1">Tujuan Penggunaan Medis Utama:</div>
+                        <div class="flex items-start"><i class="fa-solid fa-chevron-right text-teal-500 mt-0.5 mr-2 text-[10px]"></i> Diagnosis, pencegahan, pemantauan, terapi, atau meringankan penyakit/cedera.</div>
+                        <div class="flex items-start"><i class="fa-solid fa-chevron-right text-teal-500 mt-0.5 mr-2 text-[10px]"></i> Pemeriksaan, pemodifikasian, atau penunjang anatomi/proses fisiologis.</div>
+                        <div class="flex items-start"><i class="fa-solid fa-chevron-right text-teal-500 mt-0.5 mr-2 text-[10px]"></i> Menyokong/mempertahankan hidup & mengontrol pembuahan.</div>
+                        <div class="flex items-start"><i class="fa-solid fa-chevron-right text-teal-500 mt-0.5 mr-2 text-[10px]"></i> Desinfeksi alat kesehatan & pengujian in vitro spesimen tubuh.</div>
+                    </div>
+                </div>
+
+                <!-- Registration & Notification Rules Summary -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-base">Aturan Kode Registrasi & Notifikasi</h3>
+                    </div>
+
+                    <!-- AKD / AKL -->
+                    <div class="mb-4 pb-3 border-b border-slate-100">
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Izin Edar Kemenkes RI (Alkes)</div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="bg-teal-50 p-2.5 rounded-lg border border-teal-100">
+                                <span class="font-bold text-teal-900 block">KEMENKES RI AKD</span>
+                                <span class="text-teal-700">Produk Dalam Negeri</span>
+                            </div>
+                            <div class="bg-cyan-50 p-2.5 rounded-lg border border-cyan-100">
+                                <span class="font-bold text-cyan-900 block">KEMENKES RI AKL</span>
+                                <span class="text-cyan-700">Produk Luar Negeri / Impor</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cosmetics BPOM Notification -->
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Notifikasi Kosmetika BPOM (Format: N + Kode Benua + 11 Digit)</div>
+                        <div class="grid grid-cols-5 gap-1 text-center text-xs font-mono font-bold">
+                            <div class="bg-slate-100 p-2 rounded border" title="Asia & Dalam Negeri">NA<br><span class="text-[9px] font-sans text-slate-500">Asia/Lokal</span></div>
+                            <div class="bg-slate-100 p-2 rounded border" title="Australia">NB<br><span class="text-[9px] font-sans text-slate-500">Australia</span></div>
+                            <div class="bg-slate-100 p-2 rounded border" title="Eropa">NC<br><span class="text-[9px] font-sans text-slate-500">Eropa</span></div>
+                            <div class="bg-slate-100 p-2 rounded border" title="Afrika">ND<br><span class="text-[9px] font-sans text-slate-500">Afrika</span></div>
+                            <div class="bg-slate-100 p-2 rounded border" title="Amerika">NE<br><span class="text-[9px] font-sans text-slate-500">Amerika</span></div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-2 italic">*Berlaku selama 3 (tiga) tahun dan dapat diperpanjang melalui pembaharuan BPOM.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Access Categories Grid -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center">
+                    <i class="fa-solid fa-list-check text-teal-600 mr-2"></i> 16 Penggolongan Alkes Berdasarkan Fungsi
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3" id="quick-category-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 2: INTERACTIVE EQUIPMENT CATALOG ================= -->
+        <section id="tab-catalog" class="tab-content hidden space-y-6">
+            <!-- Search & Filter Controls -->
+            <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col sm:flex-row gap-3 justify-between items-center">
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="catalog-search" oninput="filterCatalog()" placeholder="Cari nama alkes, fungsi, spesifikasi..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+
+                    <!-- Category Dropdown Filter -->
+                    <div class="w-full sm:w-auto flex items-center space-x-2">
+                        <label for="category-filter" class="text-xs font-semibold text-slate-500 whitespace-nowrap">Kategori:</label>
+                        <select id="category-filter" onchange="filterCatalog()" class="w-full sm:w-auto bg-slate-50 border border-slate-200 rounded-xl text-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="ALL">Semua Kategori (16 Kelompok)</option>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quick Filter Badges -->
+                <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-100" id="filter-badges">
+                    <!-- Dynamic badges -->
+                </div>
+            </div>
+
+            <!-- Items Counter -->
+            <div class="flex items-center justify-between px-1 text-xs text-slate-500">
+                <span id="catalog-count-text">Menampilkan seluruh instrumen...</span>
+                <span>Klik kartu untuk detail & visualisasi interaktif</span>
+            </div>
+
+            <!-- Catalog Items Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="catalog-grid">
+                <!-- Dynamically populated cards -->
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: REGISTRATION CODE SIMULATOR ================= -->
+        <section id="tab-verifier" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 max-w-3xl mx-auto">
+                <div class="text-center max-w-xl mx-auto mb-6">
+                    <div class="w-12 h-12 bg-teal-100 text-teal-700 rounded-2xl flex items-center justify-center text-xl font-bold mx-auto mb-3">
+                        <i class="fa-solid fa-barcode"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800">Simulator Izin Edar Alkes & Notifikasi Kosmetika</h2>
+                    <p class="text-xs text-slate-500 mt-1">Uji atau masukkan kode nomor izin edar (AKD/AKL) atau kode notifikasi kosmetika BPOM (NA/NB/NC/ND/NE) untuk analisis otomatis.</p>
+                </div>
+
+                <!-- Simulator Input Form -->
+                <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Masukkan Kode Registrasi / Notifikasi:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="code-input" placeholder="Contoh: KEMENKES RI AKD 11603510246 atau NA18210100123" class="flex-1 bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-500 uppercase">
+                            <button onclick="verifyCode()" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-5 py-2.5 rounded-xl transition shadow text-sm">
+                                Pre-Check
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Preset Samples -->
+                    <div>
+                        <span class="text-xs text-slate-500 block mb-1.5">Atau coba contoh preset dari slide:</span>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="setSampleCode('KEMENKES RI AKD 11603510246')" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-lg hover:border-teal-500 hover:text-teal-700 font-mono transition">
+                                AKD (Kasa Steril Dalam Negeri)
+                            </button>
+                            <button onclick="setSampleCode('KEMENKES RI AKL 1700141222')" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-lg hover:border-teal-500 hover:text-teal-700 font-mono transition">
+                                AKL (Reflex Hammer Impor)
+                            </button>
+                            <button onclick="setSampleCode('NA18200100123')" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-lg hover:border-teal-500 hover:text-teal-700 font-mono transition">
+                                NA (Kosmetik Asia/Lokal)
+                            </button>
+                            <button onclick="setSampleCode('NC10190500888')" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-lg hover:border-teal-500 hover:text-teal-700 font-mono transition">
+                                NC (Kosmetik Eropa)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Result Box -->
+                <div id="verification-result" class="hidden mt-6 p-5 rounded-2xl border transition-all">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 4: STUDY FLASHCARDS ================= -->
+        <section id="tab-flashcards" class="tab-content hidden space-y-6">
+            <div class="max-w-2xl mx-auto space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Flashcards Hafalan Alkes</h2>
+                        <p class="text-xs text-slate-500">Klik kartu untuk membalik dan melihat fungsi/penjelasan detail.</p>
+                    </div>
+                    <div class="text-xs font-bold bg-teal-100 text-teal-800 px-3 py-1 rounded-full" id="card-counter">
+                        1 / 10
+                    </div>
+                </div>
+
+                <!-- Flashcard Container -->
+                <div class="perspective-1000 w-full h-80 cursor-pointer" onclick="flipCard()">
+                    <div id="flashcard" class="w-full h-full relative transform-style-3d transition-transform duration-500 shadow-xl rounded-2xl bg-white border border-slate-200">
+                        <!-- Front Face -->
+                        <div class="absolute inset-0 backface-hidden p-8 flex flex-col justify-between items-center text-center bg-gradient-to-br from-white to-slate-50 rounded-2xl">
+                            <span class="text-xs uppercase tracking-widest font-bold text-teal-600 bg-teal-50 px-3 py-1 rounded-full border border-teal-100" id="card-category">
+                                Kategori Alkes
+                            </span>
+                            <div class="my-auto space-y-3">
+                                <div class="text-4xl text-teal-600" id="card-icon">
+                                    <i class="fa-solid fa-notes-medical"></i>
+                                </div>
+                                <h3 class="text-2xl font-extrabold text-slate-800" id="card-title">Nama Alat</h3>
+                                <p class="text-xs text-slate-400">Tekan/Klik untuk melihat detail fungsi & spesifikasi</p>
+                            </div>
+                            <span class="text-[11px] text-slate-400 flex items-center">
+                                <i class="fa-solid fa-rotate mr-1"></i> Klik untuk Membalik
+                            </span>
+                        </div>
+
+                        <!-- Back Face -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 p-8 flex flex-col justify-between bg-teal-900 text-white rounded-2xl">
+                            <div class="flex justify-between items-center border-b border-teal-800 pb-3">
+                                <span class="text-xs font-bold text-teal-300" id="card-back-title">Nama Alat</span>
+                                <i class="fa-solid fa-circle-info text-teal-400"></i>
+                            </div>
+                            <div class="my-auto space-y-3 text-sm text-teal-100 leading-relaxed text-left" id="card-back-content">
+                                Penjelasan detail fungsi dan indikasi alat medis ini.
+                            </div>
+                            <div class="text-right text-xs text-teal-400">
+                                <i class="fa-solid fa-check text-teal-300 mr-1"></i> Mode Hafalan
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center justify-between pt-2">
+                    <button onclick="prevCard()" class="bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold px-4 py-2 rounded-xl text-sm transition flex items-center shadow-sm">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Sebelumnya
+                    </button>
+                    <button onclick="shuffleCards()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-xl text-sm transition flex items-center">
+                        <i class="fa-solid fa-shuffle mr-2"></i> Acak
+                    </button>
+                    <button onclick="nextCard()" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-4 py-2 rounded-xl text-sm transition flex items-center shadow">
+                        Berikutnya <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 5: PRACTICE QUIZ ================= -->
+        <section id="tab-quiz" class="tab-content hidden space-y-6">
+            <div class="max-w-2xl mx-auto bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-6">
+                <!-- Quiz Header -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">Uji Pemahaman Materi Alkes</h2>
+                        <p class="text-xs text-slate-500">Jawab pertanyaan berdasarkan perkuliahan apt. Vania S. Yuhar</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 block">Skor Saat Ini</span>
+                        <span class="text-lg font-bold text-teal-600" id="quiz-score">0 / 0</span>
+                    </div>
+                </div>
+
+                <!-- Quiz Progress Bar -->
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div id="quiz-progress" class="bg-teal-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+
+                <!-- Quiz Question Box -->
+                <div id="quiz-box" class="space-y-4">
+                    <div class="text-sm font-semibold text-slate-700" id="quiz-question-number">Pertanyaan 1:</div>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-snug" id="quiz-question-text">
+                        Loading pertanyaan...
+                    </h3>
+
+                    <!-- Options Grid -->
+                    <div class="space-y-2.5 pt-2" id="quiz-options">
+                        <!-- Options injected by JS -->
+                    </div>
+
+                    <!-- Answer Feedback Box -->
+                    <div id="quiz-feedback" class="hidden p-4 rounded-xl text-xs sm:text-sm leading-relaxed transition-all">
+                        <!-- Feedback content -->
+                    </div>
+                </div>
+
+                <!-- Quiz Footer Controls -->
+                <div class="flex justify-between items-center border-t border-slate-100 pt-4">
+                    <button onclick="restartQuiz()" class="text-xs text-slate-500 hover:text-slate-800 flex items-center">
+                        <i class="fa-solid fa-rotate-right mr-1.5"></i> Ulangi Kuis
+                    </button>
+                    <button id="next-question-btn" onclick="nextQuestion()" class="hidden bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-5 py-2 rounded-xl transition">
+                        Lanjut <i class="fa-solid fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ITEM DETAIL MODAL -->
+    <div id="detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600 p-1">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div id="modal-content">
+                <!-- Modal details injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-medium text-slate-700">Aplikasi Interaktif Belajar Alkes & Perbekalan Kesehatan</p>
+            <p class="mt-1">Disusun berdasarkan modul materi perkuliahan Farmasi oleh <strong>apt. Vania S. Yuhar, S.Si.</strong></p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC & DATA -->
+    <script>
+        // ================= DATA STORE =================
+        const CATEGORIES = [
+            { id: "PEMBALUT", name: "1. Alat & Bahan Pembalut", icon: "fa-bandage", color: "bg-amber-50 text-amber-700 border-amber-200" },
+            { id: "PERAWATAN", name: "2. Alat Perawatan", icon: "fa-kit-medical", color: "bg-blue-50 text-blue-700 border-blue-200" },
+            { id: "PENAMPUNG", name: "3. Alat Menampung", icon: "fa-vial-circle-check", color: "bg-rose-50 text-rose-700 border-rose-200" },
+            { id: "HOSPITAL_WARES", name: "4. Hospital Wares", icon: "fa-hospital", color: "bg-purple-50 text-purple-700 border-purple-200" },
+            { id: "CATHETER", name: "5. Catheter & IV Line", icon: "fa-syringe", color: "bg-teal-50 text-teal-700 border-teal-200" },
+            { id: "INJECTION", name: "6. Injection Needle", icon: "fa-needle", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+            { id: "SYRINGE", name: "7. Syringe (Spuit)", icon: "fa-eye-dropper", color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+            { id: "PARATUS", name: "8. Paratus", icon: "fa-box-archive", color: "bg-cyan-50 text-cyan-700 border-cyan-200" },
+            { id: "SUTURE", name: "9. Suture (Benang Bedah)", icon: "fa-disease", color: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200" },
+            { id: "SUTURE_NEEDLE", name: "10. Suture Needle", icon: "fa-circle-notch", color: "bg-slate-50 text-slate-700 border-slate-200" },
+            { id: "FLUID_SETS", name: "11. Transfusi & Infus Set", icon: "fa-droplet", color: "bg-red-50 text-red-700 border-red-200" },
+            { id: "DIAGNOSTIC", name: "12. Alat Diagnostik", icon: "fa-stethoscope", color: "bg-sky-50 text-sky-700 border-sky-200" },
+            { id: "LAB_CLINICAL", name: "13. Lab & Klinis", icon: "fa-microscope", color: "bg-violet-50 text-violet-700 border-violet-200" },
+            { id: "SURGICAL", name: "14. Alat Bedah", icon: "fa-scalpel", color: "bg-orange-50 text-orange-700 border-orange-200" },
+            { id: "CONTRACEPTIVE", name: "15. Alat Kontrasepsi / KB", icon: "fa-venus-mars", color: "bg-pink-50 text-pink-700 border-pink-200" },
+            { id: "GENERAL", name: "16. Alat Umum (Masker & APD)", icon: "fa-head-side-mask", color: "bg-gray-50 text-gray-700 border-gray-200" }
+        ];
+
+        const MEDICAL_ITEMS = [
+            // Pembalut
+            {
+                id: "item-1",
+                name: "Plester (Micropore & Rol Kain)",
+                category: "PEMBALUT",
+                icon: "fa-tape",
+                desc: "Digunakan sebagai penutup luka atau menempelkan kasa pada bagian tubuh.",
+                detail: "Contoh merk: Micropore (paper tape berbahan lembut hipoalergenik) dan Hansaplast Rol Kain. Digunakan luas dalam fiksasi kassa dan slang infus."
+            },
+            {
+                id: "item-2",
+                name: "Kassa Steril (Gaas)",
+                category: "PEMBALUT",
+                icon: "fa-square",
+                desc: "Kain kasa berlubang kecil warna putih untuk menutup luka agar bebas kontaminasi.",
+                detail: "Berupa tenunan benang katun steril ram kawat berlubang-lubang kecil. Menyerap cairan luka dan mencegah paparan kuman dari luar."
+            },
+            {
+                id: "item-3",
+                name: "Perban / Bandage (Elastic, Neck, Gips)",
+                category: "PEMBALUT",
+                icon: "fa-bandage",
+                desc: "Kain pembalut berbentuk gulungan atau segitiga untuk menopang area cedera.",
+                detail: "Terdiri atas Elastic Bandage (penekan/penopang sendi/keseleo), Pembalut Leher (cervical collar), dan Pembalut Gips untuk imobilisasi patah tulang."
+            },
+
+            // Alat Perawatan
+            {
+                id: "item-4",
+                name: "Warm Water Zak (Hot Water Bag)",
+                category: "PERAWATAN",
+                icon: "fa-bottle-water",
+                desc: "Kantung karet diisi air panas untuk kompres hangat relaksasi otot dan nyeri.",
+                detail: "Bahan rubber/karet tahan panas kapasitas hingga 2 Liter. Bermanfaat meredakan nyeri perut, kram otot, dan memberikan rasa hangat."
+            },
+            {
+                id: "item-5",
+                name: "Ice Bag (Es Kap)",
+                category: "PERAWATAN",
+                icon: "fa-snowflake",
+                desc: "Kantung kompres dingin untuk meredakan memar, bengkak, atau demam tinggi.",
+                detail: "Diisi es batu atau air dingin. Digunakan pada cedera akut (RICE treatment), pembengkakan lokal, dan penanganan awal demam."
+            },
+            {
+                id: "item-6",
+                name: "Breast Pump & Nipple Shield",
+                category: "PERAWATAN",
+                icon: "fa-baby",
+                desc: "Pompa ASI dan pelindung puting (tapelhoedje) untuk membantu proses menyusui.",
+                detail: "Nipple shield terbuat dari silikon lembut untuk melindungi puting lecet/luka atau membantu bayi yang kesulitan mengempeng langsung."
+            },
+            {
+                id: "item-7",
+                name: "Windring (Bantal Bunder)",
+                category: "PERAWATAN",
+                icon: "fa-circle-dot",
+                desc: "Bantal berbentuk cincin karet sebagai alas duduk penderita ambeien/wasir.",
+                detail: "Mengurangi tekanan pada area rektum/anus dan tulang ekor saat duduk pada penderita hemoroid atau pasca melahirkan."
+            },
+            {
+                id: "item-8",
+                name: "Eye Bath Glass",
+                category: "PERAWATAN",
+                icon: "fa-eye",
+                desc: "Gelas kecil melengkung untuk membilas dan mencuci mata dari kotoran/iritasi.",
+                detail: "Didesain sesuai lekuk rongga mata untuk memudahkan pembersihan mata menggunakan larutan steril khusus pembilas mata."
+            },
+
+            // Menampung
+            {
+                id: "item-9",
+                name: "Blood Collecting Bag (Blood Bag)",
+                category: "PENAMPUNG",
+                icon: "fa-droplet",
+                desc: "Kantung plastik PVC steril berisi antikoagulan untuk menampung darah donor.",
+                detail: "Antikoagulan (seperti ACD/CPDA) mencegah darah menggumpal/membeku selama penyimpanan donor darah sebelum ditransfusikan."
+            },
+            {
+                id: "item-10",
+                name: "Urine Bag",
+                category: "PENAMPUNG",
+                icon: "fa-filter",
+                desc: "Kantung plastik berskala untuk menampung air seni pasien terhubung dengan kateter.",
+                detail: "Dilengkapi katup pembuangan cair dan kran pencegah aliran balik (anti-reflux valve) untuk menjaga higiene drainase urin."
+            },
+            {
+                id: "item-11",
+                name: "Colostomy Bag (Stoma Bag)",
+                category: "PENAMPUNG",
+                icon: "fa-bag-shopping",
+                desc: "Kantung untuk menampung feses/cairan dari lubang usus buatan (stoma).",
+                detail: "Digunakan pada pasien pasca operasi kolostomi di mana usus besar dikeluarkan ke dinding perut."
+            },
+
+            // Hospital Wares
+            {
+                id: "item-12",
+                name: "Urinal & Bedpan",
+                category: "HOSPITAL_WARES",
+                icon: "fa-restroom",
+                desc: "Wadah penampung eliminasi buang air kecil (Urinal) & buang air besar (Bedpan/Pispot).",
+                detail: "Sangat dibutuhkan oleh pasien tirah baring (bedridden) di rumah sakit yang tidak mampu beraktivitas ke kamar mandi."
+            },
+            {
+                id: "item-13",
+                name: "Pus Basin (Bengkok / Nierbekken)",
+                category: "HOSPITAL_WARES",
+                icon: "fa-bowl-food",
+                desc: "Wadah berbentuk ginjal untuk menampung muntah, kapas bekas, atau kotoran medis.",
+                detail: "Didesain melengkung agar muat diletakkan di bawah dagu pasien atau di samping area luka saat perawatan medis."
+            },
+
+            // Catheter
+            {
+                id: "item-14",
+                name: "Intra Vena Catheter (IV Catheter)",
+                category: "CATHETER",
+                icon: "fa-syringe",
+                desc: "Kateter IV yang dimasukkan ke pembuluh vena untuk memasukkan cairan infus & obat.",
+                detail: "Ukuran Gauge (G): 14G, 16G, 17G, 18G, 20G, 22G, 24G (Semakin besar angka G, semakin kecil ukuran kanulanya. Misal 24G untuk bayi/anak)."
+            },
+            {
+                id: "item-15",
+                name: "Foley Catheter (Balloon Catheter)",
+                category: "CATHETER",
+                icon: "fa-grip-lines",
+                desc: "Kateter urine menetap dengan balon pengunci di dalam kandung kemih.",
+                detail: "Dipasang pada retensi urine, inkontinensia, atau pasca operasi saluran kemih/prostat. Balon dikembangkan dengan akuades agar tidak lepas."
+            },
+            {
+                id: "item-16",
+                name: "Non-IV Catheter (Stomach, Feeding, Rectal Tube)",
+                category: "CATHETER",
+                icon: "fa-wheat-awn",
+                desc: "Selang sonde makanan (NGT/Feeding Tube) & selang cuci lambung (Stomach Tube).",
+                detail: "Stomach tube untuk membilas lambung (keracunan), Feeding tube (NGT) untuk memasukkan nutrisi cair langsung ke lambung."
+            },
+
+            // Transfusi & Infus Sets
+            {
+                id: "item-17",
+                name: "Blood Donor Set vs Transfusion Set",
+                category: "FLUID_SETS",
+                icon: "fa-vial",
+                desc: "Donor Set (Taking Set - tanpa filter) vs Transfusion Set (Giving Set - dengan filter).",
+                detail: "Giving Set wajib memiliki filter saringan khusus untuk menyaring bekuan darah (clot) atau mikroagregat sebelum darah masuk ke tubuh pasien."
+            },
+            {
+                id: "item-18",
+                name: "Infusion Set & Y-Type Administration Set",
+                category: "FLUID_SETS",
+                icon: "fa-code-fork",
+                desc: "Set infus standar & Set tipe-Y untuk memberikan 2 jenis cairan sekaligus/bergantian.",
+                detail: "Y-Type Administration Set memungkinkan pemberian transfusi dan cairan salin (0.9% NaCl) secara bergantian atau simultan."
+            },
+
+            // Diagnostic
+            {
+                id: "item-19",
+                name: "Buku Test Buta Warna (Ishihara Test)",
+                category: "DIAGNOSTIC",
+                icon: "fa-eye-low-vision",
+                desc: "Buku berisi plat angka/pola warna yang dikembangkan oleh Dr. Shinobu Ishihara.",
+                detail: "Menguji kemampuan persepsi warna merah-hijau pada retina mata pasien."
+            },
+            {
+                id: "item-20",
+                name: "Reflex Hammer & Percussion Hammer",
+                category: "DIAGNOSTIC",
+                icon: "fa-hammer",
+                desc: "Palu refleks saraf (lutut/perifer) & Palu perkusi untuk mengecek rongga dada/punggung.",
+                detail: "Digunakan untuk memancing reaksi refleks tendon guna menguji keutuhan sistem saraf pusat dan perifer."
+            },
+            {
+                id: "item-21",
+                name: "Stethoscope (Monoaural vs Binaural)",
+                category: "DIAGNOSTIC",
+                icon: "fa-stethoscope",
+                desc: "Alat auskultasi suara organ dalam tubuh (jantung, paru, usus, denyut janin).",
+                detail: "Stetoskop Monoaural Kayu (Rene Laennec, 1816) khusus untuk mendengar denyut jantung bayi dalam kandungan. Stetoskop Binaural standar untuk auskultasi umum."
+            },
+            {
+                id: "item-22",
+                name: "Speculum (Nasal, Rectal, Ear, Vaginal)",
+                category: "DIAGNOSTIC",
+                icon: "fa-magnifying-glass-plus",
+                desc: "Alat pemekar saluran rongga tubuh untuk melihat bagian dalam organ.",
+                detail: "Jenis: Nasal (hidung), Ear (telinga/otoskop), Rectal (anus/rektum), dan Vaginal Speculum (Cocor bebek untuk serviks/uterus)."
+            },
+
+            // Surgical Instruments
+            {
+                id: "item-23",
+                name: "Scalpel (Pisau Operasi)",
+                category: "SURGICAL",
+                icon: "fa-scalpel",
+                desc: "Pisau bedah tajam terdiri dari Scalpel Blade (pisau) & Scalpel Handle (pegangan).",
+                detail: "Masing-masing ukuran nomor blade (seperti no 10, 11, 15, 20) dipasangkan dengan handle bedah yang sesuai."
+            },
+            {
+                id: "item-24",
+                name: "Gunting Bedah & Forceps (Klem/Pinset)",
+                category: "SURGICAL",
+                icon: "fa-scissors",
+                desc: "Operating scissors, Bandage scissors, Pinset Anatomi/Jaringan, Artery Clamp.",
+                detail: "Pinset Anatomi (tanpa gigi), Pinset Jaringan (Tissue Forceps bergerigi). Artery clamp (klem pembuluh darah untuk menghentikan pendarahan)."
+            },
+            {
+                id: "item-25",
+                name: "Needle Holder & Curette",
+                category: "SURGICAL",
+                icon: "fa-hand-holding-medical",
+                desc: "Needle Holder (pemegang jarum jahit bedah) & Curette (kuret pembersih rahim).",
+                detail: "Curette digunakan dalam prosedur kuretase untuk mengikis jaringan plasenta/ovum pada dinding rahim pasca keguguran."
+            },
+
+            // Benang Bedah (Suture)
+            {
+                id: "item-26",
+                name: "Absorbable vs Non-Absorbable Suture",
+                category: "SUTURE",
+                icon: "fa-file-contract",
+                desc: "Benang jahit yang dapat diserap tubuh vs Benang tidak dapat diserap.",
+                detail: "Absorbable: Catgut (Chromic/Plain dari kolagen), Polyglactin, Polyglycolic Acid. Non-Absorbable: Silk (sutra), Nylon/Polyamide, Polypropylene, Polyester."
+            },
+
+            // Alat KB / Contraceptives
+            {
+                id: "item-27",
+                name: "IUD / AKDR (Copper-T, Lippes Loop)",
+                category: "CONTRACEPTIVE",
+                icon: "fa-anchor",
+                desc: "Alat Kontrasepsi Dalam Rahim dari plastik/logam tembaga pencegah fertilisasi.",
+                detail: "Menghambat sperma masuk ke tuba fallopi dan mencegah implantasi embrio. Tipe: Copper-T, Lippes Loop, dan IUD Hormonal (Progestin)."
+            },
+            {
+                id: "item-28",
+                name: "Vasektomi & Tubektomi (Sterilisasi Permanen)",
+                category: "CONTRACEPTIVE",
+                icon: "fa-user-doctor",
+                desc: "Kontrasepsi permanen pria (potong vas deferens) & wanita (penutupan tuba falopi).",
+                detail: "Vasektomi memotong saluran sperma pada pria. Tubektomi mengikat/memotong saluran telur sehingga sperma tak bisa membuahi ovum."
+            },
+            {
+                id: "item-29",
+                name: "Pil KB (Kombinasi vs Mini Pil)",
+                category: "CONTRACEPTIVE",
+                icon: "fa-pills",
+                desc: "Pil hormonal harian untuk mencegah ovulasi & menebalkan lendir serviks.",
+                detail: "Pil Kombinasi (Estrogen + Progestin) vs Mini Pil (Hanya Progestin). Mencegah pelepasan sel telur dan mengubah dinding endometrium."
+            }
+        ];
+
+        const QUIZ_QUESTIONS = [
+            {
+                question: "Manakah pernyataan yang BENAR mengenai definisi Alat Kesehatan menurut WHO dan UU Kemenkes RI?",
+                options: [
+                    "Alkes mencapai fungsi utamanya melalui reaksi farmakologi dan metabolisme.",
+                    "Alkes tidak mengandung obat sebagai aksi utamanya dalam tubuh manusia.",
+                    "Alkes hanya mencakup instrumen bedah logam tanpa reagen in vitro.",
+                    "Alkes sama persis definisinya dengan Perbekalan Kesehatan Rumah Tangga (PKRT)."
+                ],
+                correct: 1,
+                explanation: "Alat Kesehatan (ALKES) adalah instrumen/mesin/reagen yang digunakan tanpa mencapai fungsi utamanya melalui proses farmakologi, imunologi, atau metabolisme."
+            },
+            {
+                question: "Kode nomor izin edar 'KEMENKES RI AKL 1700141222' menandakan bahwa alat kesehatan tersebut adalah...",
+                options: [
+                    "Alat kesehatan produksi dalam negeri",
+                    "Alat kesehatan produksi luar negeri (Impor)",
+                    "Kosmetika terdaftar dari benua Afrika",
+                    "Perbekalan kesehatan rumah tangga lokal"
+                ],
+                correct: 1,
+                explanation: "Kode 'AKL' adalah singkatan Alat Kesehatan Luar Negeri (impor). Sedangkan 'AKD' adalah Alat Kesehatan Dalam Negeri."
+            },
+            {
+                question: "Notifikasi kosmetika BPOM dengan kode 'NC' menunjukkan asal benua pembuat produk dari...",
+                options: [
+                    "Asia / Dalam Negeri",
+                    "Australia",
+                    "Eropa",
+                    "Amerika"
+                ],
+                correct: 2,
+                explanation: "Kode Benua Notifikasi Kosmetik BPOM: NA = Asia/Lokal, NB = Australia, NC = Eropa, ND = Afrika, NE = Amerika."
+            },
+            {
+                question: "Perbedaan utama antara Blood Donor Set (Taking Set) dan Blood Transfusion Set (Giving Set) adalah...",
+                options: [
+                    "Taking Set memiliki filter saringan darah, Giving Set tidak ada.",
+                    "Giving Set memiliki filter khusus saringan darah, Taking Set tidak ada filter.",
+                    "Taking Set digunakan untuk memberikan infus salin.",
+                    "Giving Set hanya digunakan untuk penampungan sampel urin."
+                ],
+                correct: 1,
+                explanation: "Blood Transfusion Set (Giving Set) wajib memiliki filter pembeku darah untuk keselamatan transfusi ke pasien. Taking set (donor set) tidak berfilter."
+            },
+            {
+                question: "Stetoskop kayu monoaural yang dirancang oleh Rene Laennec pada tahun 1816 secara khusus digunakan untuk...",
+                options: [
+                    "Mendengarkan bising usus pasien dewasa",
+                    "Mengukur tekanan darah bersama tensimeter",
+                    "Mendengar denyut jantung bayi/janin dalam kandungan",
+                    "Pemeriksaan perkusi rongga dada"
+                ],
+                correct: 2,
+                explanation: "Stetoskop monoaural kayu dikembangkan oleh Rene Laennec (1816) dan umumnya digunakan oleh bidan/dokter untuk mendengarkan denyut jantung janin."
+            },
+            {
+                question: "Manakah dari benang bedah berikut yang termasuk dalam kelompok benang yang DAPAT DISERAP tubuh (Absorbable Suture)?",
+                options: [
+                    "Silk (Sutra)",
+                    "Nylon / Polyamide",
+                    "Catgut (Chromic / Plain)",
+                    "Polypropylene"
+                ],
+                correct: 2,
+                explanation: "Catgut, Polyglactin, dan Polyglycolic Acid adalah contoh benang absorbable. Silk, Nylon, dan Polypropylene adalah non-absorbable."
+            }
+        ];
+
+        // ================= APP STATE =================
+        let currentFlashcardIndex = 0;
+        let isCardFlipped = false;
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let selectedCategoryFilter = "ALL";
+
+        // ================= INITIALIZATION =================
+        window.onload = function() {
+            renderQuickCategories();
+            renderCategoryDropdown();
+            renderCatalogItems();
+            loadFlashcard(currentFlashcardIndex);
+            loadQuizQuestion(currentQuizIndex);
+        };
+
+        // Navigation Tabs Switcher
+        function switchTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Show selected content
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            // Update navbar styling
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-white/20', 'text-white');
+                btn.classList.add('text-teal-100');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-white/20', 'text-white');
+                activeNav.classList.remove('text-teal-100');
+            }
+
+            // Close mobile menu if open
+            document.getElementById('mobile-menu').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Render Quick Categories on Dashboard
+        function renderQuickCategories() {
+            const container = document.getElementById('quick-category-grid');
+            container.innerHTML = CATEGORIES.map(cat => `
+                <div onclick="filterByCategory('${cat.id}')" class="cursor-pointer border rounded-xl p-3 flex items-center space-x-3 transition hover:shadow-md hover:border-teal-400 bg-white">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${cat.color}">
+                        <i class="fa-solid ${cat.icon}"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-700 truncate">${cat.name}</span>
+                </div>
+            `).join('');
+        }
+
+        // Render Dropdown options for catalog filter
+        function renderCategoryDropdown() {
+            const select = document.getElementById('category-filter');
+            CATEGORIES.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.textContent = cat.name;
+                select.appendChild(opt);
+            });
+        }
+
+        // ================= CATALOG LOGIC =================
+        function filterByCategory(catId) {
+            switchTab('catalog');
+            document.getElementById('category-filter').value = catId;
+            filterCatalog();
+        }
+
+        function filterCatalog() {
+            const query = document.getElementById('catalog-search').value.toLowerCase();
+            const catFilter = document.getElementById('category-filter').value;
+
+            const filtered = MEDICAL_ITEMS.filter(item => {
+                const matchesQuery = item.name.toLowerCase().includes(query) || 
+                                     item.desc.toLowerCase().includes(query) ||
+                                     item.detail.toLowerCase().includes(query);
+                const matchesCategory = (catFilter === "ALL") || (item.category === catFilter);
+                return matchesQuery && matchesCategory;
+            });
+
+            renderCatalogGrid(filtered);
+        }
+
+        function renderCatalogItems() {
+            renderCatalogGrid(MEDICAL_ITEMS);
+        }
+
+        function renderCatalogGrid(items) {
+            const grid = document.getElementById('catalog-grid');
+            const countText = document.getElementById('catalog-count-text');
+
+            countText.textContent = `Menampilkan ${items.length} dari ${MEDICAL_ITEMS.length} instrumen/alat`;
+
+            if (items.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-400">
+                        <i class="fa-solid fa-box-open text-4xl mb-2"></i>
+                        <p class="text-sm">Tidak ada alat kesehatan yang sesuai pencarian.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = items.map(item => {
+                const catObj = CATEGORIES.find(c => c.id === item.category) || CATEGORIES[0];
+                return `
+                    <div onclick="openModal('${item.id}')" class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${catObj.color}">
+                                    ${catObj.name.split('.')[1] || catObj.name}
+                                </span>
+                                <i class="fa-solid fa-chevron-right text-xs text-slate-300 group-hover:text-teal-600 transition"></i>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-lg flex-shrink-0 group-hover:bg-teal-600 group-hover:text-white transition">
+                                    <i class="fa-solid ${item.icon}"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm group-hover:text-teal-700 transition leading-snug">${item.name}</h4>
+                                    <p class="text-xs text-slate-500 mt-1 line-clamp-2">${item.desc}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-teal-600 font-semibold">
+                            <span>Lihat Detail Modul</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ================= MODAL DETAILED VIEW =================
+        function openModal(itemId) {
+            const item = MEDICAL_ITEMS.find(i => i.id === itemId);
+            if (!item) return;
+
+            const catObj = CATEGORIES.find(c => c.id === item.category);
+            const modalContent = document.getElementById('modal-content');
+
+            modalContent.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid ${item.icon}"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-teal-600">${catObj.name}</span>
+                            <h3 class="text-lg font-extrabold text-slate-900">${item.name}</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                        <h4 class="text-xs font-bold uppercase text-slate-400">Ringkasan Ringkas:</h4>
+                        <p class="text-sm font-medium text-slate-800">${item.desc}</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold uppercase text-slate-400">Penjelasan Lengkap & Konsep Slide:</h4>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">${item.detail}</p>
+                    </div>
+
+                    <div class="bg-teal-50 p-3 rounded-xl border border-teal-100 flex items-center justify-between text-xs text-teal-800">
+                        <span><i class="fa-solid fa-shield-check mr-1 text-teal-600"></i> Sumber: Slide Perkuliahan apt. Vania S. Yuhar</span>
+                        <button onclick="closeModal()" class="font-bold text-teal-700 hover:underline">Tutup</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        // ================= VERIFIER / SIMULATOR =================
+        function setSampleCode(code) {
+            document.getElementById('code-input').value = code;
+            verifyCode();
+        }
+
+        function verifyCode() {
+            const input = document.getElementById('code-input').value.trim().toUpperCase();
+            const resultBox = document.getElementById('verification-result');
+
+            if (!input) {
+                resultBox.className = "mt-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs";
+                resultBox.innerHTML = "<i class='fa-solid fa-triangle-exclamation mr-1.5'></i> Silakan masukkan nomor kode registrasi terlebih dahulu.";
+                resultBox.classList.remove('hidden');
+                return;
+            }
+
+            let html = "";
+            let isValid = false;
+
+            // Check Kemenkes AKD / AKL
+            if (input.includes("AKD") || input.includes("AKL")) {
+                isValid = true;
+                const isAKD = input.includes("AKD");
+                const typeText = isAKD ? "Alat Kesehatan Produksi Dalam Negeri" : "Alat Kesehatan Produksi Luar Negeri (Impor)";
+                const badgeColor = isAKD ? "bg-emerald-100 text-emerald-800 border-emerald-300" : "bg-cyan-100 text-cyan-800 border-cyan-300";
+
+                html = `
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${badgeColor}">
+                                ${isAKD ? 'AKD (DALAM NEGERI)' : 'AKL (IMPOR)'}
+                            </span>
+                            <span class="text-xs text-slate-400">Regulasi: Kemenkes RI</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm">Hasil Verifikasi Izin Edar Alkes:</h4>
+                            <p class="text-xs text-slate-600 mt-1">${typeText}</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border text-xs font-mono text-slate-700">
+                            Kode Input: ${input}
+                        </div>
+                    </div>
+                `;
+            } 
+            // Check BPOM Cosmetic Notification NA/NB/NC/ND/NE
+            else if (/^N[A-E]\d{11}$/.test(input) || /^N[A-E]/.test(input)) {
+                isValid = true;
+                const continentCode = input.charAt(1);
+                let continentName = "";
+                switch(continentCode) {
+                    case 'A': continentName = "Asia / Dalam Negeri"; break;
+                    case 'B': continentName = "Australia"; break;
+                    case 'C': continentName = "Eropa"; break;
+                    case 'D': continentName = "Afrika"; break;
+                    case 'E': continentName = "Amerika"; break;
+                    default: continentName = "Tidak Diketahui";
+                }
+
+                html = `
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                KOSMETIKA BPOM (N${continentCode})
+                            </span>
+                            <span class="text-xs text-slate-400">Masa Berlaku: 3 Tahun</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm">Notifikasi Kosmetika BPOM Terdeteksi:</h4>
+                            <p class="text-xs text-slate-600 mt-1">Asal Benua / Wilayah Produksi: <strong>${continentName}</strong></p>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border text-xs font-mono text-slate-700">
+                            Format Valid: N (Notifikasi) + ${continentCode} (${continentName}) + 11 Digit Angka
+                        </div>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="space-y-1 text-rose-800 text-xs">
+                        <div class="font-bold flex items-center"><i class="fa-solid fa-circle-xmark mr-1.5 text-base"></i> Format Tidak Dikenali</div>
+                        <p class="text-slate-600">Pastikan format diawali 'KEMENKES RI AKD/AKL' untuk alat kesehatan atau 'NA/NB/NC/ND/NE' diikuti angka untuk kosmetika.</p>
+                    </div>
+                `;
+            }
+
+            resultBox.className = `mt-6 p-5 rounded-2xl border ${isValid ? 'bg-teal-50/50 border-teal-200' : 'bg-rose-50 border-rose-200'}`;
+            resultBox.innerHTML = html;
+            resultBox.classList.remove('hidden');
+        }
+
+        // ================= FLASHCARD LOGIC =================
+        function loadFlashcard(index) {
+            const card = MEDICAL_ITEMS[index];
+            if (!card) return;
+
+            const catObj = CATEGORIES.find(c => c.id === card.category);
+
+            document.getElementById('card-category').textContent = catObj ? catObj.name : "Alkes";
+            document.getElementById('card-title').textContent = card.name;
+            document.getElementById('card-icon').innerHTML = `<i class="fa-solid ${card.icon}"></i>`;
+            document.getElementById('card-back-title').textContent = card.name;
+            document.getElementById('card-back-content').innerHTML = `
+                <p class="font-semibold text-white mb-2">${card.desc}</p>
+                <p class="text-xs text-teal-200">${card.detail}</p>
+            `;
+
+            document.getElementById('card-counter').textContent = `${index + 1} / ${MEDICAL_ITEMS.length}`;
+
+            // Reset flip state
+            if (isCardFlipped) flipCard();
+        }
+
+        function flipCard() {
+            const cardEl = document.getElementById('flashcard');
+            isCardFlipped = !isCardFlipped;
+            if (isCardFlipped) {
+                cardEl.classList.add('rotate-y-180');
+            } else {
+                cardEl.classList.remove('rotate-y-180');
+            }
+        }
+
+        function nextCard() {
+            currentFlashcardIndex = (currentFlashcardIndex + 1) % MEDICAL_ITEMS.length;
+            loadFlashcard(currentFlashcardIndex);
+        }
+
+        function prevCard() {
+            currentFlashcardIndex = (currentFlashcardIndex - 1 + MEDICAL_ITEMS.length) % MEDICAL_ITEMS.length;
+            loadFlashcard(currentFlashcardIndex);
+        }
+
+        function shuffleCards() {
+            currentFlashcardIndex = Math.floor(Math.random() * MEDICAL_ITEMS.length);
+            loadFlashcard(currentFlashcardIndex);
+        }
+
+        // ================= QUIZ LOGIC =================
+        function loadQuizQuestion(index) {
+            const q = QUIZ_QUESTIONS[index];
+            if (!q) return;
+
+            document.getElementById('quiz-question-number').textContent = `Pertanyaan ${index + 1} dari ${QUIZ_QUESTIONS.length}:`;
+            document.getElementById('quiz-question-text').textContent = q.question;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = q.options.map((opt, i) => `
+                <button onclick="selectAnswer(${i})" class="quiz-opt-btn w-full text-left p-3.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-700 hover:bg-teal-50 hover:border-teal-300 transition flex items-center justify-between">
+                    <span>${String.fromCharCode(65 + i)}. ${opt}</span>
+                    <i class="fa-regular fa-circle text-slate-300"></i>
+                </button>
+            `).join('');
+
+            // Reset Feedback & Next Btn
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('next-question-btn').classList.add('hidden');
+
+            // Update Progress
+            const progressPct = ((index) / QUIZ_QUESTIONS.length) * 100;
+            document.getElementById('quiz-progress').style.width = `${progressPct}%`;
+        }
+
+        function selectAnswer(selectedIndex) {
+            const q = QUIZ_QUESTIONS[currentQuizIndex];
+            const buttons = document.querySelectorAll('.quiz-opt-btn');
+            const feedbackBox = document.getElementById('quiz-feedback');
+
+            // Disable all buttons
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === q.correct) {
+                quizScore++;
+                buttons[selectedIndex].className = "w-full text-left p-3.5 rounded-xl border border-emerald-500 bg-emerald-50 text-emerald-900 text-xs sm:text-sm font-bold flex items-center justify-between";
+                buttons[selectedIndex].innerHTML += `<i class="fa-solid fa-circle-check text-emerald-600"></i>`;
+
+                feedbackBox.className = "p-4 rounded-xl text-xs sm:text-sm bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-1";
+                feedbackBox.innerHTML = `<strong>Jawaban Tepat!</strong><br>${q.explanation}`;
+            } else {
+                buttons[selectedIndex].className = "w-full text-left p-3.5 rounded-xl border border-rose-500 bg-rose-50 text-rose-900 text-xs sm:text-sm font-bold flex items-center justify-between";
+                buttons[selectedIndex].innerHTML += `<i class="fa-solid fa-circle-xmark text-rose-600"></i>`;
+
+                // Highlight correct
+                buttons[q.correct].className = "w-full text-left p-3.5 rounded-xl border border-emerald-500 bg-emerald-50 text-emerald-900 text-xs sm:text-sm font-bold flex items-center justify-between";
+
+                feedbackBox.className = "p-4 rounded-xl text-xs sm:text-sm bg-rose-50 border border-rose-200 text-rose-900 space-y-1";
+                feedbackBox.innerHTML = `<strong>Jawaban Kurang Tepat.</strong><br>${q.explanation}`;
+            }
+
+            feedbackBox.classList.remove('hidden');
+            document.getElementById('quiz-score').textContent = `${quizScore} / ${QUIZ_QUESTIONS.length}`;
+            document.getElementById('next-question-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            if (currentQuizIndex < QUIZ_QUESTIONS.length - 1) {
+                currentQuizIndex++;
+                loadQuizQuestion(currentQuizIndex);
+            } else {
+                // Quiz Completed
+                document.getElementById('quiz-box').innerHTML = `
+                    <div class="text-center py-8 space-y-4">
+                        <div class="w-16 h-16 bg-teal-100 text-teal-700 rounded-full flex items-center justify-center text-3xl mx-auto">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800">Kuis Selesai!</h3>
+                        <p class="text-sm text-slate-600">Skor Akhir Anda: <strong class="text-teal-600 text-lg">${quizScore} / ${QUIZ_QUESTIONS.length}</strong></p>
+                        <button onclick="restartQuiz()" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm">
+                            Coba Kuis Lagi
+                        </button>
+                    </div>
+                `;
+                document.getElementById('quiz-progress').style.width = `100%`;
+            }
+        }
+
+        function restartQuiz() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-score').textContent = `0 / ${QUIZ_QUESTIONS.length}`;
+            loadQuizQuestion(0);
+        }
+    </script>
+</body>
+</html>
+```
